@@ -26,12 +26,14 @@ const VALORANT_AGENTS = {
   Waylay: '🛣️',
 };
 export default async function handleGenerateAgents(interaction) {
+  await interaction.deferReply();
+
   const shuffled = Object.entries(VALORANT_AGENTS).sort(() => Math.random() - 0.5);
   const picked = shuffled.slice(0, 5);
 
   const formatted = picked.map(([name, emoji]) => `- ${emoji} ${name}`);
 
-  await interaction.reply({
+  await interaction.editReply({
     content: `👀 **Random Valorant Agents:**\n${formatted.join('\n')}`,
   });
 }

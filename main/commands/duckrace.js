@@ -80,6 +80,7 @@ export default async function handleDuckrace(interaction, { duckLB }) {
   const joinTime = 15000;
   const raceLength = 25;
 
+  await interaction.deferReply();
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId('join_race')
@@ -91,7 +92,7 @@ export default async function handleDuckrace(interaction, { duckLB }) {
       .setStyle(ButtonStyle.Success),
   );
 
-  const message = await interaction.reply({
+  const message = await interaction.editReply({
     content: `🦆 A duck race is starting! Click **Join Race** to enter.\n👤 0 players joined!\n⏳ Starting automatically in **${
       joinTime / 1000
     } seconds**...`,

@@ -12,6 +12,8 @@ const TEAM_NAMES = [
 ];
 
 export default async function handleGenerateTeam(interaction) {
+  await interaction.deferReply();
+
   const numTeams = interaction.options.getInteger('teams') || 2;
   const hostId = interaction.user.id;
   const participants = new Map();
@@ -31,7 +33,7 @@ export default async function handleGenerateTeam(interaction) {
       .setStyle(ButtonStyle.Danger),
   );
 
-  const message = await interaction.reply({
+  const message = await interaction.editReply({
     content: `🎮 **Team Generator Started**\nPlayers can click **Join Game** to participate.\nOnly <@${hostId}> can generate or cancel the game.`,
     components: [row],
     fetchReply: true,
@@ -39,6 +41,7 @@ export default async function handleGenerateTeam(interaction) {
 
   const collector = message.createMessageComponentCollector({
     componentType: ComponentType.Button,
+    time: 2 * 60 * 1000, // 2 minutes
   });
 
   collector.on('collect', async (btn) => {
@@ -56,6 +59,7 @@ export default async function handleGenerateTeam(interaction) {
 
         await message.edit({
           content: `🎮 **Team Generator Started**\nPlayers can click **Join Game** to participate.\nOnly <@${hostId}> can generate or cancel the game.\n\n**Joined Players:**\n${joinedNames}`,
+          components: [row],
         });
       } else {
         await btn.reply({ content: '❗ You already joined.', ephemeral: true });
@@ -73,7 +77,6 @@ export default async function handleGenerateTeam(interaction) {
       collector.stop();
 
       const players = [...participants.values()];
-
       if (players.length < 2) {
         return message.edit({
           content: '❌ **Cancelled:** Not enough players to form teams.',
@@ -92,7 +95,6 @@ export default async function handleGenerateTeam(interaction) {
 
       const shuffled = players.sort(() => Math.random() - 0.5);
       const teams = Array.from({ length: numTeams }, () => []);
-      const teamNames = [...TEAM_NAMES].sort(() => Math.random() - 0.5);
 
       await message.edit({
         content: `🎲 **Drafting teams...**\n\n_(This will only take a few seconds...)_`,
@@ -106,20 +108,22 @@ export default async function handleGenerateTeam(interaction) {
 
         const preview = teams
           .map((team, tIdx) => {
-            const name = teamNames[tIdx] || `Team ${tIdx + 1}`;
+            const name = TEAM_NAMES[tIdx] || `Team ${tIdx + 1}`;
             const members = team.map((p) => `- ${p}`).join('\n') || '_No members yet_';
             return `**${name}**\n${members}`;
           })
           .join('\n\n');
 
-        await message.edit({ content: `🎲 **Drafting teams...**\n\n${preview}` });
-        await new Promise((r) => setTimeout(r, 800)); // ⏱ Delay for animation
+        await message.edit({
+          content: `🎲 **Drafting teams...**\n\u200B\n${preview}`,
+        });
+        await new Promise((r) => setTimeout(r, 800));
       }
 
       await message.edit({
         content: `✅ **Teams finalized!**\n\n${teams
           .map((team, i) => {
-            const teamName = teamNames[i] || `Team ${i + 1}`;
+            const teamName = TEAM_NAMES[i] || `Team ${i + 1}`;
             return `**${teamName}**\n- ${team.join('\n- ')}`;
           })
           .join('\n\n')}`,
@@ -139,6 +143,12 @@ export default async function handleGenerateTeam(interaction) {
         content: '❌ **Team Generator Cancelled by the Host.**',
         components: [],
       });
+    }
+  });
+
+  collector.on('end', async () => {
+    if (message.editable) {
+      await message.edit({ components: [] }).catch(() => null);
     }
   });
 }

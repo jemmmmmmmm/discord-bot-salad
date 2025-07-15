@@ -1,4 +1,6 @@
 export default async function handlePokusLeaderboard(interaction, { pokusLB, client }) {
+  await interaction.deferReply();
+
   const raw = pokusLB.load();
   const entries = Object.entries(raw);
 
@@ -22,7 +24,7 @@ export default async function handlePokusLeaderboard(interaction, { pokusLB, cli
     }),
   );
 
-  await interaction.reply({
+  await interaction.editReply({
     content: `\`\`\`\n🏆 Top Pokus Masters\n\nRank Name             Focus Title\n────────────────────────────────────\n${rows.join(
       '\n',
     )}\n\`\`\``,

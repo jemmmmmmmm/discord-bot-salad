@@ -1,4 +1,5 @@
 export default async function handlePaloLeaderboard(interaction, { paloLB, client }) {
+  await interaction.deferReply();
   const leaderboard = paloLB.load();
 
   if (!Object.keys(leaderboard).length) {
@@ -24,7 +25,7 @@ export default async function handlePaloLeaderboard(interaction, { paloLB, clien
     }),
   );
 
-  await interaction.reply({
+  await interaction.editReply({
     content: `👋 **Top Palo Masters** 🔥\n\`\`\`\n${header}\n${divider}\n${rows.join(
       '\n',
     )}\n\`\`\``,

@@ -14,12 +14,13 @@ const VALORANT_MAPS = [
 ];
 
 export default async function handleGenerateMapPool(interaction) {
+  await interaction.deferReply();
+
   const amount = interaction.options.getInteger('amount') || 3;
 
   if (amount > VALORANT_MAPS.length) {
-    return interaction.reply({
+    return interaction.editReply({
       content: `❌ Max is ${VALORANT_MAPS.length} maps.`,
-      ephemeral: true,
     });
   }
 
@@ -29,5 +30,5 @@ export default async function handleGenerateMapPool(interaction) {
   const output = `🗺️ **Map Pool (${amount} map${amount > 1 ? 's' : ''}):**\n- ${selected.join(
     '\n- ',
   )}`;
-  await interaction.reply(output);
+  await interaction.editReply(output);
 }

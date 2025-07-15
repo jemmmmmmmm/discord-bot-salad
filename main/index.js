@@ -167,7 +167,18 @@ client.on('interactionCreate', async (interaction) => {
     }
   } catch (err) {
     console.error(err);
-    await interaction.reply({ content: '❌ Error while executing the command.', ephemeral: true });
+
+    if (!interaction.replied && !interaction.deferred) {
+      await interaction.reply({
+        content: '❌ Error while executing the command.',
+        ephemeral: true,
+      });
+    } else {
+      await interaction.followUp({
+        content: '❌ Error while executing the command.',
+        ephemeral: true,
+      });
+    }
   }
 });
 

@@ -7,6 +7,32 @@ const CLIENT_ID = process.env.CLIENT_ID
 const GUILD_ID = process.env.GUILD_ID
 
 const TEAM_NAMES = ['😡 Red Team', '💙 Blue Team', '🤢 Green Team', '🍊 Orange Team', '🐦‍⬛ Black Team', '💜 Purple Team', '🌠 Yellow Team', '🌊 Aqua Team']
+const VALORANT_AGENTS = {
+  'Astra': '🌌',
+  'Breach': '💥',
+  'Brimstone': '🔥',
+  'Chamber': '💼',
+  'Clove': '🌿',
+  'Cypher': '🕵️‍♂️',
+  'Deadlock': '🧊',
+  'Fade': '🌘',
+  'Gekko': '🦎',
+  'Harbor': '🌊',
+  'Iso': '🧿',
+  'Jett': '💨',
+  'KAY/O': '🤖',
+  'Killjoy': '🛠️',
+  'Neon': '⚡',
+  'Omen': '👻',
+  'Phoenix': '🔥',
+  'Raze': '💣',
+  'Reyna': '👁️',
+  'Sage': '💊',
+  'Skye': '🦘',
+  'Sova': '🏹',
+  'Viper': '☠️',
+  'Yoru': '🚪'
+}
 const VALORANT_MAPS = ['Ascent', 'Bind', 'Breeze', 'Haven', 'Icebox', 'Lotus', 'Sunset', 'Split']
 
 const fs = require('fs')
@@ -14,6 +40,7 @@ const path = require('path')
 
 const PALOLEADERBOARD = path.join(__dirname, 'palo-leaderboard.json')
 const DUCK_LEADERBOARD_PATH = path.join(__dirname, 'duckrace-leaderboard.json')
+const POKUS_LEADERBOARD_PATH = path.join(__dirname, 'pokus-leaderboard.json')
 
 // Helper to load the leaderboard
 const paloLeaderBoard = () => {
@@ -36,6 +63,25 @@ const loadDuckLeaderboard = () => {
 
 const saveDuckLeaderboard = (data) => {
   fs.writeFileSync(DUCK_LEADERBOARD_PATH, JSON.stringify(data, null, 2))
+}
+
+const loadPokusLeaderboard = () => {
+  if (!fs.existsSync(POKUS_LEADERBOARD_PATH)) return {}
+  const data = fs.readFileSync(POKUS_LEADERBOARD_PATH, 'utf-8')
+  return JSON.parse(data)
+}
+
+const savePokusLeaderboard = (data) => {
+  fs.writeFileSync(POKUS_LEADERBOARD_PATH, JSON.stringify(data, null, 2))
+}
+
+function generateWeightedFocus() {
+  const roll = Math.random()
+
+  if (roll < 0.6) return Math.floor(Math.random() * 50)        // 0–49 (60%)
+  if (roll < 0.85) return Math.floor(Math.random() * 30) + 50  // 50–79 (25%)
+  if (roll < 0.97) return Math.floor(Math.random() * 10) + 80  // 80–89 (12%)
+  return Math.floor(Math.random() * 10) + 90                   // 90–99 (3%)
 }
 
 const registerCommand = async () => {
@@ -64,13 +110,25 @@ const registerCommand = async () => {
       .setDescription('View the top 10 most pinalo users.'),
 
    new SlashCommandBuilder()
-  .setName('palo')
-  .setDescription('Send a warm palo to someone!')
-  .addUserOption(option =>
-    option.setName('target')
-      .setDescription('Sino papaluin natin?')
-      .setRequired(true)
-  ),
+    .setName('palo')
+    .setDescription('Send a warm palo to someone!')
+    .addUserOption(option =>
+      option.setName('target')
+        .setDescription('Sino papaluin natin?')
+        .setRequired(true)
+    ),
+
+    new SlashCommandBuilder()
+      .setName('pokus')
+      .setDescription('See how focused you are.'),
+
+    new SlashCommandBuilder()
+      .setName('pokusleaderboard')
+      .setDescription('See the top 10 highest Pokus.'),
+
+    new SlashCommandBuilder()
+      .setName('generateagents')
+      .setDescription('Randomly pick 5 Valorant agents.')
 
   ].map(cmd => cmd.toJSON())
 
@@ -143,30 +201,78 @@ client.on('interactionCreate', async (interaction) => {
     })
   }
 
-  if (interaction.commandName === 'paloleaderboard') {
-  const leaderboard = paloLeaderBoard()
+  if (interaction.commandName === 'pokus') {
+    const user = interaction.user
+    const focusPercent = generateWeightedFocus()
 
-  if (!Object.keys(leaderboard).length) {
-    return interaction.reply('📉 Wala pang napapalo... 😇')
+    const leaderboard = loadPokusLeaderboard()
+
+    const prevBest = leaderboard[user.id]
+
+    if (prevBest === undefined || focusPercent > prevBest) {
+      leaderboard[user.id] = focusPercent
+      savePokusLeaderboard(leaderboard)
+    }
+
+    await interaction.reply({
+      content: `🧘 **${user.username}** is pokusing...\n🎯 Focus Meter: **${focusPercent}%**`,
+      files: [
+        'https://cdn.discordapp.com/attachments/929627310624219167/1394580661834092564/pokus.jpg?ex=687753f3&is=68760273&hm=3b10320f79ba24572bf4080e963a13dec0422bbb06f991e2517328b818d97834&'
+      ]
+    })
   }
 
-  const sorted = Object.entries(leaderboard)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 10)
+  if (interaction.commandName === 'pokusleaderboard') {
+    const leaderboard = loadPokusLeaderboard()
+    const entries = Object.entries(leaderboard)
 
-  const output = await Promise.all(
-    sorted.map(async ([userId, count], index) => {
-      const user = await client.users.fetch(userId).catch(() => null)
-      const medal = ['🥇', '🥈', '🥉'][index] || `#${index + 1}`
-      const name = user?.username || `Unknown (${userId})`
-      return `${medal} **${name}** — ${count} palo${count === 1 ? '' : 's'}`
+    if (entries.length === 0) {
+      return interaction.reply('📉 No pokus data yet!')
+    }
+
+    const sorted = entries.sort((a, b) => b[1] - a[1]).slice(0, 10)
+    const medals = ['🥇', '🥈', '🥉']
+
+    const lines = await Promise.all(
+      sorted.map(async ([userId, score], index) => {
+        const medal = medals[index] || `#${index + 1}`
+        const user = await client.users.fetch(userId).catch(() => null)
+        const name = user?.username || `Unknown (${userId})`
+
+        return `${medal} **${name}**\n  🎯 Highest Focus: **${score}%**`
+      })
+    )
+
+    await interaction.reply({
+      content: `🧘‍♂️ **Top Pokus Masters** 🎯\n\n${lines.join('\n\n')}`
     })
-  )
+  }
 
-  await interaction.reply({
-    content: `🏆 **Palo Leaderboard** 🏆\n\n${output.join('\n')}`
-  })
-}
+  if (interaction.commandName === 'paloleaderboard') {
+    const leaderboard = paloLeaderBoard()
+
+    if (!Object.keys(leaderboard).length) {
+      return interaction.reply('📉 Wala pang napapalo... 😇')
+    }
+
+    const sorted = Object.entries(leaderboard)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 10)
+
+    const output = await Promise.all(
+      sorted.map(async ([userId, count], index) => {
+        const user = await client.users.fetch(userId).catch(() => null)
+        const medal = ['🥇', '🥈', '🥉'][index] || `#${index + 1}`
+        const name = user?.username || `Unknown (${userId})`
+        return `${medal} **${name}**\n  👋 ${count} palo${count === 1 ? '' : 's'}`
+      })
+    )
+
+    await interaction.reply({
+      content: `👋 **Top Palo Masters** 🔥\n\n${output.join('\n\n')}`
+    })
+  }
+
 
   if (interaction.commandName === 'generateteam') {
     const playersRaw = interaction.options.getString('players')
@@ -192,6 +298,17 @@ client.on('interactionCreate', async (interaction) => {
     }).join('\n\n')
 
     await interaction.reply(output)
+  }
+
+  if (interaction.commandName === 'generateagents') {
+    const shuffled = Object.entries(VALORANT_AGENTS).sort(() => Math.random() - 0.5)
+    const picked = shuffled.slice(0, 5)
+
+    const formatted = picked.map(([name, emoji]) => `- ${emoji} ${name}`)
+
+    await interaction.reply({
+      content: `👀 **Random Valorant Agents:**\n${formatted.join('\n')}`
+  })
   }
 
   if (interaction.commandName === 'generatemappool') {
@@ -220,7 +337,7 @@ client.on('interactionCreate', async (interaction) => {
     )
 
     const message = await interaction.reply({
-      content: `🦆 A duck race is starting! Click **Join Race** to enter.\n⏳ Starting automatically in **${joinTime / 1000} seconds**...`,
+      content: `🦆 A duck race is starting! Click **Join Race** to enter.\n👤 0 players joined!\n⏳ Starting automatically in **${joinTime / 1000} seconds**...`,
       components: [row],
       fetchReply: true
     })
@@ -231,8 +348,14 @@ client.on('interactionCreate', async (interaction) => {
       if (btn.customId === 'join_race') {
         if (!participants.has(btn.user.id)) {
           participants.set(btn.user.id, btn.user.username)
-          await interaction.followUp({ content: `🦆 ${btn.user.username} has joined the race!`, ephemeral: false })
-          await btn.reply({ content: `✅ You're in, ${btn.user.username}!`, ephemeral: true })
+
+          const joinedCount = participants.size
+          await message.edit({
+            content: `🦆 A duck race is starting! Click **Join Race** to enter.\n👤 ${joinedCount} player${joinedCount > 1 ? 's' : ''} joined!\n⏳ Starting automatically in **${joinTime / 1000} seconds**...`,
+            components: [row]
+          })
+
+          await btn.reply({ content: `✅ You're in!`, ephemeral: true })
         } else {
           await btn.reply({ content: `❗ You've already joined.`, ephemeral: true })
         }
@@ -292,7 +415,7 @@ client.on('interactionCreate', async (interaction) => {
         return `${medal} **${r.name}** (${r.delta}s) — ${comment}`
       }).join('\n')
 
-     
+      // 🧠 Save stats
       const duckLB = loadDuckLeaderboard()
 
       for (let i = 0; i < leaderboard.length; i++) {
@@ -315,35 +438,37 @@ client.on('interactionCreate', async (interaction) => {
 
       saveDuckLeaderboard(duckLB)
 
-
       await raceMsg.edit({ content: `🏆 **Duck Race Results** 🏆\n\n${formatted}` })
     })
   }
 
   if (interaction.commandName === 'duckleaderboard') {
-    const duckLB = loadDuckLeaderboard()
+  const duckLB = loadDuckLeaderboard()
 
-    if (!Object.keys(duckLB).length) {
-      return interaction.reply('📉 No winners yet!')
-    }
-
-    const sorted = Object.entries(duckLB)
-      .sort(([, a], [, b]) => b.gold - a.gold || b.silver - a.silver || b.wins - a.wins)
-      .slice(0, 10)
-
-    const output = await Promise.all(
-      sorted.map(async ([userId, stats], i) => {
-        const medal = ['🥇', '🥈', '🥉'][i] || `#${i + 1}`
-        const user = await client.users.fetch(userId).catch(() => null)
-        const name = user?.username || `Unknown (${userId})`
-        return `${medal} **${name}** — 🥇 ${stats.gold} | 🥈 ${stats.silver} | 🥉 ${stats.bronze} | 🏁 ${stats.wins} win${stats.wins === 1 ? '' : 's'}`
-      })
-    )
-
-    await interaction.reply({
-      content: `🏁 **Top Duck Racers** 🏁\n\n${output.join('\n')}`
-    })
+  if (!Object.keys(duckLB).length) {
+    return interaction.reply('📉 No duck races yet!')
   }
+
+  const sorted = Object.entries(duckLB)
+    .sort(([, a], [, b]) => b.gold - a.gold || b.silver - a.silver || b.wins - a.wins)
+    .slice(0, 10)
+
+  const output = await Promise.all(
+    sorted.map(async ([userId, stats], i) => {
+      const medal = ['🥇', '🥈', '🥉'][i] || `#${i + 1}`
+      const user = await client.users.fetch(userId).catch(() => null)
+      const name = user?.username || `Unknown (${userId})`
+
+      // Format line with padded columns
+      return `${medal} **${name}**\n  🥇 ${stats.gold}  🥈 ${stats.silver}  🥉 ${stats.bronze}  🏁 ${stats.wins} win${stats.wins === 1 ? '' : 's'}`
+    })
+  )
+
+  await interaction.reply({
+    content: `🏁 **Top Duck Racers** 🦆\n\n${output.join('\n\n')}`
+  })
+}
+
 })
 
 client.login(process.env.DISCORD_TOKEN)

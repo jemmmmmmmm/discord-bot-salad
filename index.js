@@ -3,6 +3,9 @@ const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, ButtonBuil
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] })
 
+const fs = require('fs')
+const path = require('path')
+
 const CLIENT_ID = process.env.CLIENT_ID
 const GUILD_ID = process.env.GUILD_ID
 
@@ -35,25 +38,23 @@ const VALORANT_AGENTS = {
 }
 const VALORANT_MAPS = ['Ascent', 'Bind', 'Breeze', 'Haven', 'Icebox', 'Lotus', 'Sunset', 'Split']
 
-const fs = require('fs')
-const path = require('path')
-
-const PALOLEADERBOARD = path.join(__dirname, 'palo-leaderboard.json')
+const PALO_LEADERBOARD = path.join(__dirname, 'palo-leaderboard.json')
 const DUCK_LEADERBOARD_PATH = path.join(__dirname, 'duckrace-leaderboard.json')
 const POKUS_LEADERBOARD_PATH = path.join(__dirname, 'pokus-leaderboard.json')
 
-// Helper to load the leaderboard
+// TODO: leaderboard generic function (Load and Save)
+// TODO: files abstraction
+// TODO: utils folder
+
 const paloLeaderBoard = () => {
-  if (!fs.existsSync(PALOLEADERBOARD)) return {}
-  const data = fs.readFileSync(PALOLEADERBOARD, 'utf-8')
+  if (!fs.existsSync(PALO_LEADERBOARD)) return {}
+  const data = fs.readFileSync(PALO_LEADERBOARD, 'utf-8')
   return JSON.parse(data)
-}
+} 
 
-// Helper to save the leaderboard
 const savePaloLeaderBoard = (data) => {
-  fs.writeFileSync(PALOLEADERBOARD, JSON.stringify(data, null, 2))
+  fs.writeFileSync(PALO_LEADERBOARD, JSON.stringify(data, null, 2))
 }
-
 
 const loadDuckLeaderboard = () => {
   if (!fs.existsSync(DUCK_LEADERBOARD_PATH)) return {}
@@ -142,48 +143,11 @@ const registerCommand = async () => {
     console.error('❌ Failed to register commands:', err)
   }
 }
-
+// Discord mounts
 client.once('ready', () => {
   console.log(`🤖 Logged in as ${client.user.tag}`)
   registerCommand()
 })
-
-const generateFunnyComment = (placement, index, total) => {
-  const first = [
-    'flew like a goose on Red Bull 🪽',
-    'left everyone in the pond dust 💨',
-    'crossed the finish like it owed them money 🤑'
-  ]
-  const middle = [
-    'quacked with confidence 🦆',
-    'drifted through lily pads 🍃',
-    'lost a feather mid-race 🪶'
-  ]
-  const last = [
-    'tripped on a worm 🍠',
-    'got distracted by bread 🥖',
-    'took a nap mid-race 😴',
-    'is still looking for the starting line 🤔'
-  ]
-
-  if (placement === 1) return first[Math.floor(Math.random() * first.length)]
-  if (index === total - 1) return last[Math.floor(Math.random() * last.length)]
-  return middle[Math.floor(Math.random() * middle.length)]
-}
-
-const renderDuckRace = (players, trackLength = 25) => {
-  return (
-    '🏁 **Duck Race! First to the pond wins!** 🏁\n\n' +
-    players
-      .map(({ name, position }) => {
-        const clamped = Math.max(0, trackLength - position)
-        const pre = ' '.repeat(clamped)
-        const post = '-'.repeat(position)
-        return `🏁 ${pre}🦆 ${name} ${post}`
-      })
-      .join('\n')
-  )
-}
 
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return
@@ -239,7 +203,7 @@ client.on('interactionCreate', async (interaction) => {
         const user = await client.users.fetch(userId).catch(() => null)
         const name = user?.username || `Unknown (${userId})`
 
-        return `${medal} **${name}**\n  🎯 Highest Focus: **${score}%**`
+        return `${medal} **${name}**\n🎯 Highest Focus: **${score}%**`
       })
     )
 
@@ -264,7 +228,7 @@ client.on('interactionCreate', async (interaction) => {
         const user = await client.users.fetch(userId).catch(() => null)
         const medal = ['🥇', '🥈', '🥉'][index] || `#${index + 1}`
         const name = user?.username || `Unknown (${userId})`
-        return `${medal} **${name}**\n  👋 ${count} palo${count === 1 ? '' : 's'}`
+        return `${medal} **${name}**\n👋 ${count} palo${count === 1 ? '' : 's'}`
       })
     )
 
@@ -411,7 +375,7 @@ client.on('interactionCreate', async (interaction) => {
 
       const formatted = leaderboard.map((r, i) => {
         const medal = ['🥇', '🥈', '🥉'][i] || `${r.place}th`
-        const comment = generateFunnyComment(r.place, i, leaderboard.length)
+        const comment = generateComment(r.place, i, leaderboard.length)
         return `${medal} **${r.name}** (${r.delta}s) — ${comment}`
       }).join('\n')
 
@@ -460,7 +424,7 @@ client.on('interactionCreate', async (interaction) => {
       const name = user?.username || `Unknown (${userId})`
 
       // Format line with padded columns
-      return `${medal} **${name}**\n  🥇 ${stats.gold}  🥈 ${stats.silver}  🥉 ${stats.bronze}  🏁 ${stats.wins} win${stats.wins === 1 ? '' : 's'}`
+      return `${medal} **${name}**\n🥇 ${stats.gold}  🥈 ${stats.silver}  🥉 ${stats.bronze}  🏁 ${stats.wins} win${stats.wins === 1 ? '' : 's'}`
     })
   )
 
@@ -470,5 +434,42 @@ client.on('interactionCreate', async (interaction) => {
 }
 
 })
+
+const generateComment = (placement, index, total) => {
+  const first = [
+    'flew like a goose on Red Bull 🪽',
+    'left everyone in the pond dust 💨',
+    'crossed the finish like it owed them money 🤑'
+  ]
+  const middle = [
+    'quacked with confidence 🦆',
+    'drifted through lily pads 🍃',
+    'lost a feather mid-race 🪶'
+  ]
+  const last = [
+    'tripped on a worm 🍠',
+    'got distracted by bread 🥖',
+    'took a nap mid-race 😴',
+    'is still looking for the starting line 🤔'
+  ]
+
+  if (placement === 1) return first[Math.floor(Math.random() * first.length)]
+  if (index === total - 1) return last[Math.floor(Math.random() * last.length)]
+  return middle[Math.floor(Math.random() * middle.length)]
+}
+
+const renderDuckRace = (players, trackLength = 25) => {
+  return (
+    '🏁 **Duck Race! First to the pond wins!** 🏁\n\n' +
+    players
+      .map(({ name, position }) => {
+        const clamped = Math.max(0, trackLength - position)
+        const pre = ' '.repeat(clamped)
+        const post = '-'.repeat(position)
+        return `🏁 ${pre}🦆 ${name} ${post}`
+      })
+      .join('\n')
+  )
+}
 
 client.login(process.env.DISCORD_TOKEN)

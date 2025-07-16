@@ -8,7 +8,7 @@ export default async function handlePalo(interaction, { paloLB }) {
   await interaction.reply({
     content: `paluin si **${target.username}**! 👋`,
     files: [
-      'https://cdn.discordapp.com/attachments/990946463204913152/992410372894097448/XPBNYf6.gif?ex=6876f5ee&is=6875a46e&hm=8b926b98e7e582233533ff177186043972098970d392696694bc02b6640fc7fc&',
+      'https://cdn.discordapp.com/attachments/724279642806157439/1016906509382320168/XPBNYf6.gif?ex=687867fd&is=6877167d&hm=138e178ccbc721bf054d0990cd381b5548e4acedf25552e970f0720903466687&',
     ],
   });
 }

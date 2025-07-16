@@ -160,7 +160,7 @@ export default async function handleDuckrace(interaction, { duckLB }) {
 
         const step = getWeightedDuckStep();
         racer.position += step;
-        racer.elapsedTime += tickRate / 1000;
+        racer.elapsedTime += tickRate / 1000 + Math.random() * 0.25;
 
         if (racer.position >= raceLength) {
           racer.position = raceLength;
@@ -177,6 +177,11 @@ export default async function handleDuckrace(interaction, { duckLB }) {
       if (results.length === racers.length) finished = true;
     }
 
+    results.sort((a, b) => {
+      if (a.time !== b.time) return a.time - b.time;
+      return a.name.localeCompare(b.name);
+    });
+
     const firstTime = results[0].time;
     const currentGameLeaderboard = results.map((r, i) => ({
       ...r,
@@ -192,7 +197,6 @@ export default async function handleDuckrace(interaction, { duckLB }) {
       })
       .join('\n');
 
-    // 🧠 Save stats
     const leaderboard = duckLB.load();
 
     for (let i = 0; i < currentGameLeaderboard.length; i++) {

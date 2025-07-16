@@ -15,6 +15,7 @@ import { createFsHandlers } from './utils/index.js';
 import handleDuckleaderboard from './commands/duckleaderboard.js';
 import handleCoinFlip from './commands/coinflip.js';
 import handleMagicConch from './commands/magicConch.js';
+import handlePing from './commands/ping.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -131,6 +132,8 @@ const registerCommand = async () => {
           .setDescription('Your question for the Magic Conch Shell')
           .setRequired(true),
       ),
+
+    new SlashCommandBuilder().setName('ping').setDescription('Check bot latency.'),
   ].map((cmd) => cmd.toJSON());
 
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
@@ -184,6 +187,8 @@ client.on('interactionCreate', async (interaction) => {
         return await handleCoinFlip(interaction);
       case 'magicconch':
         return await handleMagicConch(interaction);
+      case 'ping':
+        return await handlePing(interaction);
     }
   } catch (err) {
     console.error(err);

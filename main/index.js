@@ -160,6 +160,16 @@ client.once('ready', () => {
   registerCommand();
 });
 
+client.on('messageCreate', (message) => {
+  if (message.author.bot) return;
+
+  const content = message.content.toLowerCase();
+
+  if (content.includes('what the hell')) {
+    message.reply('what the helly');
+  }
+});
+
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 

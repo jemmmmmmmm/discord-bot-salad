@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import handleDuckrace from './commands/duckrace.js';
 import handleGenerateAgents from './commands/generateAgents.js';
-import handleGenerateMapPool from './commands/generateMapPool.js';
+import handleGenerateMapPool, { VALORANT_MAPS } from './commands/generateMapPool.js';
 import handleGenerateTeam from './commands/generateTeam.js';
 import handlePalo from './commands/palo.js';
 import handlePaloLeaderboard from './commands/paloleaderboard.js';
@@ -21,38 +21,15 @@ import handleRps from './commands/rps.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+});
 const CLIENT_ID = process.env.CLIENT_ID;
 const GUILD_ID = process.env.GUILD_ID;
-
-const VALORANT_AGENTS = {
-  Astra: '🌌',
-  Breach: '💥',
-  Brimstone: '🔥',
-  Chamber: '💼',
-  Clove: '🌿',
-  Cypher: '🕵️‍♂️',
-  Deadlock: '🧊',
-  Fade: '🌘',
-  Gekko: '🦎',
-  Harbor: '🌊',
-  Iso: '🧿',
-  Jett: '💨',
-  'KAY/O': '🤖',
-  Killjoy: '🛠️',
-  Neon: '⚡',
-  Omen: '👻',
-  Phoenix: '🔥',
-  Raze: '💣',
-  Reyna: '👁️',
-  Sage: '💊',
-  Skye: '🦘',
-  Sova: '🏹',
-  Viper: '☠️',
-  Yoru: '🚪',
-};
-const VALORANT_MAPS = ['Ascent', 'Bind', 'Breeze', 'Haven', 'Icebox', 'Lotus', 'Sunset', 'Split'];
 
 const PALO_LEADERBOARD_PATH = path.join(__dirname, 'data', '../../db/palo-leaderboard.json');
 const DUCK_LEADERBOARD_PATH = path.join(__dirname, 'data', '../../db/duckrace-leaderboard.json');

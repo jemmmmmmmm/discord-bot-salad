@@ -1,4 +1,4 @@
-const VALORANT_MAPS = [
+export const VALORANT_MAPS = [
   'Abyss',
   'Ascent',
   'Bind',

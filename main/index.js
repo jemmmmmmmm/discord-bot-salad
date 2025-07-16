@@ -14,6 +14,7 @@ import handlePokusLeaderboard from './commands/pokusleaderboard.js';
 import { createFsHandlers } from './utils/index.js';
 import handleDuckleaderboard from './commands/duckleaderboard.js';
 import handleCoinFlip from './commands/coinflip.js';
+import handle8ball from './commands/8ball.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -117,7 +118,16 @@ const registerCommand = async () => {
       .setName('generateagents')
       .setDescription('Randomly pick 5 Valorant agents.'),
 
-    new SlashCommandBuilder().setName('coinflip').setDescription('Cant decide? Let fate decide for you.'),
+    new SlashCommandBuilder()
+      .setName('coinflip')
+      .setDescription('Cant decide? Let fate decide for you.'),
+
+    new SlashCommandBuilder()
+      .setName('8ball')
+      .setDescription('Ask the magic 8ball a question!')
+      .addStringOption((option) =>
+        option.setName('question').setDescription('Your question for the 8ball').setRequired(true),
+      ),
   ].map((cmd) => cmd.toJSON());
 
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
@@ -139,7 +149,7 @@ client.once('ready', () => {
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  console.log(interaction.commandName)
+  console.log(interaction.commandName);
 
   const loadLogs = logsHandler.load();
   loadLogs[interaction.commandName] = (loadLogs[interaction.commandName] || 0) + 1;
@@ -168,7 +178,9 @@ client.on('interactionCreate', async (interaction) => {
       case 'duckleaderboard':
         return await handleDuckleaderboard(interaction, { duckLB, client });
       case 'coinflip':
-        return await handleCoinFlip(interaction)
+        return await handleCoinFlip(interaction);
+      case '8ball':
+        return await handle8ball(interaction);
     }
   } catch (err) {
     console.error(err);

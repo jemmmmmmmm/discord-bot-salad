@@ -17,6 +17,7 @@ import handleCoinFlip from './commands/coinflip.js';
 import handleMagicConch from './commands/magicConch.js';
 import handlePing from './commands/ping.js';
 import handleRps from './commands/rps.js';
+import handlePP from './commands/ppsize.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -119,6 +120,13 @@ const registerCommand = async () => {
       .addUserOption((option) =>
         option.setName('opponent').setDescription('The user to challenge').setRequired(true),
       ),
+
+    new SlashCommandBuilder()
+      .setName('pp')
+      .setDescription("Measure someone's pp size 🍆")
+      .addUserOption((option) =>
+        option.setName('user').setDescription('Target user').setRequired(false),
+      ),
   ].map((cmd) => cmd.toJSON());
 
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
@@ -186,6 +194,8 @@ client.on('interactionCreate', async (interaction) => {
         return await handlePing(interaction);
       case 'rps':
         return await handleRps(interaction);
+      case 'pp':
+        return await handlePP(interaction);
     }
   } catch (err) {
     console.error(err);

@@ -34,9 +34,9 @@ export default async function handlePokus(interaction, { pokusLB }) {
 
   await interaction.editReply({
     content: `🧘 **${user.username}** is pokusing...\n🎯 Focus Meter: **${focusPercent}%**`,
-    files: [
-      'https://cdn.discordapp.com/attachments/929627310624219167/1394580661834092564/pokus.jpg?ex=687753f3&is=68760273&hm=3b10320f79ba24572bf4080e963a13dec0422bbb06f991e2517328b818d97834&',
-    ],
+    // files: [
+    //   'https://cdn.discordapp.com/attachments/929627310624219167/1394580661834092564/pokus.jpg?ex=687753f3&is=68760273&hm=3b10320f79ba24572bf4080e963a13dec0422bbb06f991e2517328b818d97834&',
+    // ],
   });
 
   // 🎉 Broadcast if score is 90+

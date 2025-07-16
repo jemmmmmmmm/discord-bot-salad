@@ -14,7 +14,7 @@ import handlePokusLeaderboard from './commands/pokusleaderboard.js';
 import { createFsHandlers } from './utils/index.js';
 import handleDuckleaderboard from './commands/duckleaderboard.js';
 import handleCoinFlip from './commands/coinflip.js';
-import handle8ball from './commands/8ball.js';
+import handleMagicConch from './commands/magicConch.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -123,10 +123,13 @@ const registerCommand = async () => {
       .setDescription('Cant decide? Let fate decide for you.'),
 
     new SlashCommandBuilder()
-      .setName('8ball')
-      .setDescription('Ask the magic 8ball a question!')
+      .setName('magicconch')
+      .setDescription('Ask the Magic Conch Shell a question!')
       .addStringOption((option) =>
-        option.setName('question').setDescription('Your question for the 8ball').setRequired(true),
+        option
+          .setName('question')
+          .setDescription('Your question for the Magic Conch Shell')
+          .setRequired(true),
       ),
   ].map((cmd) => cmd.toJSON());
 
@@ -179,8 +182,8 @@ client.on('interactionCreate', async (interaction) => {
         return await handleDuckleaderboard(interaction, { duckLB, client });
       case 'coinflip':
         return await handleCoinFlip(interaction);
-      case '8ball':
-        return await handle8ball(interaction);
+      case 'magicconch':
+        return await handleMagicConch(interaction);
     }
   } catch (err) {
     console.error(err);

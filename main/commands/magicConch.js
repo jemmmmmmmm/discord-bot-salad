@@ -13,6 +13,7 @@ const RESPONSES = [
   '🫥 Better not tell you now.',
   '💭 Cannot predict now.',
   '🌀 Concentrate and ask again.',
+  '😑 Ask me again later',
 
   // Negative
   '❌ Don’t count on it.',
@@ -22,11 +23,11 @@ const RESPONSES = [
   '🥀 Very doubtful.',
 ];
 
-export default async function handle8ball(interaction) {
+export default async function handleMagicConch(interaction) {
   const question = interaction.options.getString('question');
   const answer = RESPONSES[Math.floor(Math.random() * RESPONSES.length)];
 
   await interaction.reply({
-    content: `🎱 **Question:** ${question}\n**Answer:** ${answer}`,
+    content: `🐚 **You ask:** ${question}\n**Magic Conch says:** ${answer}`,
   });
 }

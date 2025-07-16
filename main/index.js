@@ -13,6 +13,7 @@ import handlePokus from './commands/pokus.js';
 import handlePokusLeaderboard from './commands/pokusleaderboard.js';
 import { createFsHandlers } from './utils/index.js';
 import handleDuckleaderboard from './commands/duckleaderboard.js';
+import handleCoinFlip from './commands/coinflip.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -116,7 +117,7 @@ const registerCommand = async () => {
       .setName('generateagents')
       .setDescription('Randomly pick 5 Valorant agents.'),
 
-    new SlashCommandBuilder().setName('test').setDescription('See how focused you are.'),
+    new SlashCommandBuilder().setName('coinflip').setDescription('Cant decide? Let fate decide for you.'),
   ].map((cmd) => cmd.toJSON());
 
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
@@ -166,6 +167,8 @@ client.on('interactionCreate', async (interaction) => {
         return await handleDuckrace(interaction, { duckLB });
       case 'duckleaderboard':
         return await handleDuckleaderboard(interaction, { duckLB, client });
+      case 'coinflip':
+        return await handleCoinFlip(interaction)
     }
   } catch (err) {
     console.error(err);

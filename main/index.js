@@ -138,6 +138,8 @@ client.once('ready', () => {
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
+  console.log(interaction.commandName)
+
   const loadLogs = logsHandler.load();
   loadLogs[interaction.commandName] = (loadLogs[interaction.commandName] || 0) + 1;
   logsHandler.save(loadLogs);

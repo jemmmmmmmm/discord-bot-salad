@@ -18,20 +18,32 @@ import handleMagicConch from './commands/magicConch.js';
 import handlePing from './commands/ping.js';
 import handleRps from './commands/rps.js';
 import handlePP from './commands/ppsize.js';
+import handlePlay from './commands/musicbot/play.js';
+import { DisTube } from 'distube';
+import { YtDlpPlugin } from '@distube/yt-dlp';
+import handleStop from './commands/musicbot/stop.js';
+import handleSkip from './commands/musicbot/skip.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const CLIENT_ID = process.env.CLIENT_ID;
+const GUILD_ID = process.env.GUILD_ID;
 
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildVoiceStates,
   ],
 });
-const CLIENT_ID = process.env.CLIENT_ID;
-const GUILD_ID = process.env.GUILD_ID;
 
+export const distube = new DisTube(client, {
+  emitNewSongOnly: true,
+
+  plugins: [new YtDlpPlugin()],
+});
 const PALO_LEADERBOARD_PATH = path.join(__dirname, 'data', '../../db/palo-leaderboard.json');
 const DUCK_LEADERBOARD_PATH = path.join(__dirname, 'data', '../../db/duckrace-leaderboard.json');
 const POKUS_LEADERBOARD_PATH = path.join(__dirname, 'data', '../../db/pokus-leaderboard.json');
@@ -127,6 +139,18 @@ const registerCommand = async () => {
       .addUserOption((option) =>
         option.setName('user').setDescription('Target user').setRequired(false),
       ),
+
+    // Music Bot Commands ey
+    new SlashCommandBuilder()
+      .setName('play')
+      .setDescription('Play a song from YouTube by search')
+      .addStringOption((opt) =>
+        opt.setName('query').setDescription('Search term for the song').setRequired(true),
+      ),
+    new SlashCommandBuilder()
+      .setName('stop')
+      .setDescription('Stop music and leave the voice channel'),
+    new SlashCommandBuilder().setName('skip').setDescription('Skip the current song'),
   ].map((cmd) => cmd.toJSON());
 
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
@@ -196,6 +220,12 @@ client.on('interactionCreate', async (interaction) => {
         return await handleRps(interaction);
       case 'pp':
         return await handlePP(interaction);
+      case 'play':
+        return await handlePlay(interaction);
+      case 'stop':
+        return await handleStop(interaction);
+      case 'skip':
+        return await handleSkip(interaction);
     }
   } catch (err) {
     console.error(err);

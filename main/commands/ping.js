@@ -1,11 +1,9 @@
 export default async function handlePing(interaction) {
-  const now = Date.now();
-  await interaction.deferReply();
+  const reply = await interaction.reply({ content: '🏓 Pinging...', fetchReply: true });
 
-  const latency = Date.now() - now;
-  const apiLatency = interaction.client.ws.ping;
+  const responseTime = reply.createdTimestamp - interaction.createdTimestamp;
 
   await interaction.editReply({
-    content: `🏓 Pong!\n🕒 Latency: **${latency}ms**\n📡 API Ping: **${apiLatency}ms**`,
+    content: `🏓 Pong!\n Interaction Latency: **${responseTime}ms**`,
   });
 }

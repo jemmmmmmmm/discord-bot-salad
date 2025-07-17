@@ -1,26 +1,21 @@
 const RESPONSES = [
-  // Positive
-  '🎯 It is certain.',
-  '✅ Without a doubt.',
-  '🌟 You may rely on it.',
-  '🎉 Yes – definitely.',
-  '👍 It is decidedly so.',
-  '🙌 Signs point to yes.',
-
-  // Neutral
-  '🤔 Reply hazy, try again.',
-  '🔮 Ask again later.',
-  '🫥 Better not tell you now.',
-  '💭 Cannot predict now.',
-  '🌀 Concentrate and ask again.',
-  '😑 Ask me again later',
-
-  // Negative
-  '❌ Don’t count on it.',
-  '🚫 My reply is no.',
-  '😬 My sources say no.',
-  '🙅 Outlook not so good.',
-  '🥀 Very doubtful.',
+  'Nothing.',
+  'I don’t think so.',
+  'Maybe someday.',
+  'Neither.',
+  'No.',
+  'Yes.',
+  'Try asking again.',
+  'You should do... nothing.',
+  'No.',
+  'Ask again later.',
+  'I don’t feel like it.',
+  'Why don’t you ask again?',
+  'That would be telling.',
+  'You must wait.',
+  'Better not.',
+  'Mmm... no.',
+  'Do nothing.',
 ];
 
 export default async function handleMagicConch(interaction) {

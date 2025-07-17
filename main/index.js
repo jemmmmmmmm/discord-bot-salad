@@ -59,12 +59,12 @@ const registerCommand = async () => {
     new SlashCommandBuilder()
       .setName('generateteam')
       .setDescription('Randomly split players into teams.')
-      .addStringOption((option) =>
-        option
-          .setName('players')
-          .setDescription('Number of players joining (approx.)')
-          .setRequired(true),
-      )
+      // .addStringOption((option) =>
+      //   option
+      //     .setName('players')
+      //     .setDescription('Number of players joining (approx.)')
+      //     .setRequired(true),
+      // )
       .addIntegerOption((option) =>
         option.setName('teams').setDescription('Number of teams (default: 2)').setMinValue(2),
       ),

@@ -78,7 +78,7 @@ export default async function handleDuckrace(interaction, { duckLB }) {
   const participants = new Map();
   let started = false;
   const joinTime = 60000;
-  const raceLength = 25;
+  const raceLength = 40;
 
   await interaction.deferReply();
   const row = new ActionRowBuilder().addComponents(

@@ -41,7 +41,6 @@ const client = new Client({
 
 export const distube = new DisTube(client, {
   emitNewSongOnly: true,
-
   plugins: [new YtDlpPlugin()],
 });
 const PALO_LEADERBOARD_PATH = path.join(__dirname, 'data', '../../db/palo-leaderboard.json');
@@ -167,6 +166,18 @@ const registerCommand = async () => {
 client.once('ready', () => {
   console.log(`🤖 Logged in as ${client.user.tag}`);
   registerCommand();
+});
+
+distube.on('finish', (queue) => {
+  const connection = queue.voice?.connection;
+  if (connection) {
+    setTimeout(() => {
+      if (queue.songs.length === 0) {
+        connection.destroy();
+        console.log('Bot disconnected after finishing the queue.');
+      }
+    }, 5000);
+  }
 });
 
 client.on('messageCreate', (message) => {

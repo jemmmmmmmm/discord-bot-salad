@@ -1,7 +1,6 @@
 export default async function handleDuckleaderboard(interaction, { duckLB, client }) {
   try {
-    await interaction.deferReply(); // 👈 Prevents "Unknown interaction" errors
-
+    await interaction.deferReply();
     const leaderboard = duckLB.load();
 
     if (!Object.keys(leaderboard).length) {

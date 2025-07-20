@@ -23,6 +23,7 @@ import { DisTube } from 'distube';
 import { YtDlpPlugin } from '@distube/yt-dlp';
 import handleStop from './commands/musicbot/stop.js';
 import handleSkip from './commands/musicbot/skip.js';
+import handleMisinput from './commands/misinput.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -150,6 +151,8 @@ const registerCommand = async () => {
       .setName('stop')
       .setDescription('Stop music and leave the voice channel'),
     new SlashCommandBuilder().setName('skip').setDescription('Skip the current song'),
+
+    new SlashCommandBuilder().setName('misinput').setDescription('Summon moist'),
   ].map((cmd) => cmd.toJSON());
 
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
@@ -237,6 +240,8 @@ client.on('interactionCreate', async (interaction) => {
         return await handleStop(interaction);
       case 'skip':
         return await handleSkip(interaction);
+      case 'misinput':
+        return await handleMisinput(interaction);
     }
   } catch (err) {
     console.error(err);

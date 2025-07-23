@@ -149,16 +149,12 @@ const registerCommand = async () => {
       .setDescription('Stop music and leave the voice channel'),
     new SlashCommandBuilder().setName('skip').setDescription('Skip the current song'),
 
-<<<<<<< HEAD
-    new SlashCommandBuilder().setName('misinput').setDescription('Summon moist'),
-=======
     // Clock in
     // new SlashCommandBuilder().setName('clockin').setDescription('Clock in'),
     // new SlashCommandBuilder().setName('clockout').setDescription('Clock out'),
     // new SlashCommandBuilder()
     //   .setName('clocklist')
     //   .setDescription('List all users who clocked in today'),
->>>>>>> f5c2386 (up)
   ].map((cmd) => cmd.toJSON());
 
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);

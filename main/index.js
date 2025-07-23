@@ -242,17 +242,8 @@ client.on('interactionCreate', async (interaction) => {
         return await handleStop(interaction);
       case 'skip':
         return await handleSkip(interaction);
-<<<<<<< HEAD
       case 'misinput':
         return await handleMisinput(interaction);
-=======
-      // case 'clockin':
-      //   return await handleClockIn(interaction);
-      // case 'clockout':
-      //   return await handleClockOut(interaction);
-      // case 'clocklist':
-      //   return await handleClockList(interaction);
->>>>>>> f5c2386 (up)
     }
   } catch (err) {
     console.error(err);

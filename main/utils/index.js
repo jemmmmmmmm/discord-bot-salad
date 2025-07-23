@@ -1,18 +1,28 @@
 import fs from 'fs';
+import path from 'path';
 
 export const createFsHandlers = (filePath) => {
   return {
     load: () => {
       if (!fs.existsSync(filePath)) return {};
-      const data = fs.readFileSync(filePath, 'utf-8');
-      return JSON.parse(data);
+
+      try {
+        const data = fs.readFileSync(filePath, 'utf-8');
+        return data.trim() === '' ? {} : JSON.parse(data);
+      } catch (e) {
+        console.error(`Failed to load JSON from ${filePath}:`, e);
+        return {}; // fallback on bad JSON
+      }
     },
     save: (data) => {
+      const dir = path.dirname(filePath);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
     },
   };
 };
-
 export const generateWeightedFocus = () => {
   const roll = Math.random();
 

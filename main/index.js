@@ -1,6 +1,5 @@
 import { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder } from 'discord.js';
 import 'dotenv/config.js';
-
 import path from 'path';
 import { fileURLToPath } from 'url';
 import handleDuckrace from './commands/duckrace.js';
@@ -24,12 +23,26 @@ import { YtDlpPlugin } from '@distube/yt-dlp';
 import handleStop from './commands/musicbot/stop.js';
 import handleSkip from './commands/musicbot/skip.js';
 import handleMisinput from './commands/misinput.js';
+import handleClockIn from './commands/clockin.js';
+import handleClockOut from './commands/clockout.js';
+import handleClockList from './commands/clocklist.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const GUILD_ID = process.env.GUILD_ID;
+
+const PALO_LEADERBOARD_PATH = path.join(__dirname, '../db/palo-leaderboard.json');
+const DUCK_LEADERBOARD_PATH = path.join(__dirname, '../db/duckrace-leaderboard.json');
+const POKUS_LEADERBOARD_PATH = path.join(__dirname, '../db/pokus-leaderboard.json');
+const paloLB = createFsHandlers(PALO_LEADERBOARD_PATH);
+const duckLB = createFsHandlers(DUCK_LEADERBOARD_PATH);
+const pokusLB = createFsHandlers(POKUS_LEADERBOARD_PATH);
+
+// Debug logs
+const LOGS = path.join(__dirname, '../dev/logs.json');
+const logsHandler = createFsHandlers(LOGS);
 
 const client = new Client({
   intents: [
@@ -44,28 +57,12 @@ export const distube = new DisTube(client, {
   emitNewSongOnly: true,
   plugins: [new YtDlpPlugin()],
 });
-const PALO_LEADERBOARD_PATH = path.join(__dirname, 'data', '../../db/palo-leaderboard.json');
-const DUCK_LEADERBOARD_PATH = path.join(__dirname, 'data', '../../db/duckrace-leaderboard.json');
-const POKUS_LEADERBOARD_PATH = path.join(__dirname, 'data', '../../db/pokus-leaderboard.json');
-const paloLB = createFsHandlers(PALO_LEADERBOARD_PATH);
-const duckLB = createFsHandlers(DUCK_LEADERBOARD_PATH);
-const pokusLB = createFsHandlers(POKUS_LEADERBOARD_PATH);
-
-// Debug logs
-const LOGS = path.join(__dirname, 'data', '../../dev/logs.json');
-const logsHandler = createFsHandlers(LOGS);
 
 const registerCommand = async () => {
   const commands = [
     new SlashCommandBuilder()
       .setName('generateteam')
       .setDescription('Randomly split players into teams.')
-      // .addStringOption((option) =>
-      //   option
-      //     .setName('players')
-      //     .setDescription('Number of players joining (approx.)')
-      //     .setRequired(true),
-      // )
       .addIntegerOption((option) =>
         option.setName('teams').setDescription('Number of teams (default: 2)').setMinValue(2),
       ),
@@ -152,7 +149,16 @@ const registerCommand = async () => {
       .setDescription('Stop music and leave the voice channel'),
     new SlashCommandBuilder().setName('skip').setDescription('Skip the current song'),
 
+<<<<<<< HEAD
     new SlashCommandBuilder().setName('misinput').setDescription('Summon moist'),
+=======
+    // Clock in
+    // new SlashCommandBuilder().setName('clockin').setDescription('Clock in'),
+    // new SlashCommandBuilder().setName('clockout').setDescription('Clock out'),
+    // new SlashCommandBuilder()
+    //   .setName('clocklist')
+    //   .setDescription('List all users who clocked in today'),
+>>>>>>> f5c2386 (up)
   ].map((cmd) => cmd.toJSON());
 
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
@@ -240,8 +246,17 @@ client.on('interactionCreate', async (interaction) => {
         return await handleStop(interaction);
       case 'skip':
         return await handleSkip(interaction);
+<<<<<<< HEAD
       case 'misinput':
         return await handleMisinput(interaction);
+=======
+      // case 'clockin':
+      //   return await handleClockIn(interaction);
+      // case 'clockout':
+      //   return await handleClockOut(interaction);
+      // case 'clocklist':
+      //   return await handleClockList(interaction);
+>>>>>>> f5c2386 (up)
     }
   } catch (err) {
     console.error(err);
